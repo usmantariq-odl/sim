@@ -1,5 +1,5 @@
 {
-  "extends": "@sim/tsconfig/nextjs.json",
+  "extends": "../../packages/tsconfig/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -19,6 +19,7 @@
       "@/serializer/*": ["./serializer/*"],
       "@sim/db": ["../../packages/db"],
       "@sim/db/*": ["../../packages/db/*"],
+      "@sim/logger": ["../../packages/logger/src"],
       "@/executor": ["./executor"],
       "@/executor/*": ["./executor/*"]
     }

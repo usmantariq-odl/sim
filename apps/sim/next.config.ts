@@ -113,6 +113,7 @@ const nextConfig: NextConfig = {
     '@t3-oss/env-nextjs',
     '@t3-oss/env-core',
     '@sim/db',
+    '@sim/logger',
   ],
   async headers() {
     return [
