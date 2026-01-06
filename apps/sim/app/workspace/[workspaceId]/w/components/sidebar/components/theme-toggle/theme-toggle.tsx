@@ -18,9 +18,9 @@ export function ThemeToggle() {
     return (
       <Button
         variant='outline'
-        className='h-[32px] w-[32px] rounded-[8px] border-[var(--border)] bg-transparent hover:bg-[var(--surface-6)] dark:hover:bg-[var(--surface-5)]'
+        className='h-[36px] w-[36px] rounded-[10px] border-[var(--border)] bg-gradient-to-br from-[var(--surface-2)] to-[var(--surface-3)] shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200'
       >
-        <Sun className='h-[16px] w-[16px] text-[var(--text-tertiary)]' />
+        <Sun className='h-[18px] w-[18px] text-[var(--text-secondary)]' />
       </Button>
     )
   }
@@ -37,12 +37,12 @@ export function ThemeToggle() {
         <Button
           variant='outline'
           onClick={handleToggle}
-          className='h-[32px] w-[32px] rounded-[8px] border-[var(--border)] bg-transparent hover:bg-[var(--surface-6)] dark:hover:bg-[var(--surface-5)]'
+          className='h-[36px] w-[36px] rounded-[10px] border-[var(--border)] bg-gradient-to-br from-[var(--surface-2)] to-[var(--surface-3)] shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200'
         >
           {isDark ? (
-            <Moon className='h-[16px] w-[16px] text-[var(--text-secondary)] transition-transform duration-200 hover:scale-110' />
+            <Moon className='h-[18px] w-[18px] text-[var(--text-primary)] transition-all duration-300 rotate-0 hover:rotate-12' />
           ) : (
-            <Sun className='h-[16px] w-[16px] text-[var(--text-secondary)] transition-transform duration-200 hover:scale-110' />
+            <Sun className='h-[18px] w-[18px] text-[var(--text-primary)] transition-all duration-300 rotate-0 hover:rotate-90' />
           )}
         </Button>
       </Tooltip.Trigger>

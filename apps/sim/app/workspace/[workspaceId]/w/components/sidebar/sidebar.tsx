@@ -440,7 +440,12 @@ export function Sidebar() {
     <>
       {isCollapsed ? (
         /* Floating collapsed header - minimal pill showing workspace name and expand toggle */
-        <div className='fixed top-[14px] left-[10px] z-10 w-fit rounded-[10px] border border-[var(--border)] bg-[var(--surface-1)] px-[10px] py-[6px]'>
+        <div className='fixed top-[14px] left-[10px] z-10 w-fit rounded-[12px] border border-[var(--border)] bg-gradient-to-br from-[var(--surface-1)] to-[var(--surface-2)] px-[12px] py-[8px] shadow-lg backdrop-blur-sm'>
+          <div className='mb-[8px] flex items-center gap-[8px] border-b border-[var(--border)] pb-[8px]'>
+            <div className='flex h-[28px] w-[28px] items-center justify-center rounded-[6px] bg-gradient-to-br from-[#701ffc] to-[#9d54ff] shadow-sm'>
+              <span className='font-bold text-[14px] text-white'>O</span>
+            </div>
+          </div>
           <WorkspaceHeader
             activeWorkspace={activeWorkspace}
             workspaceId={workspaceId}
@@ -471,9 +476,21 @@ export function Sidebar() {
             aria-label='Workspace sidebar'
             onClick={handleSidebarClick}
           >
-            <div className='flex h-full flex-col border-[var(--border)] border-r pt-[12px]'>
+            <div className='flex h-full flex-col border-[var(--border)] border-r'>
+              {/* OmniAgentify Branding */}
+              <div className='flex-shrink-0 border-b border-[var(--border)] bg-gradient-to-b from-[var(--surface-2)] to-[var(--surface-1)] px-[16px] py-[14px]'>
+                <div className='flex items-center gap-[10px]'>
+                  <div className='flex h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-gradient-to-br from-[#701ffc] to-[#9d54ff] shadow-sm'>
+                    <span className='font-bold text-[16px] text-white'>O</span>
+                  </div>
+                  <span className='font-semibold text-[16px] text-[var(--text-primary)] tracking-tight'>
+                    OmniAgentify
+                  </span>
+                </div>
+              </div>
+
               {/* Header with Theme Toggle */}
-              <div className='flex-shrink-0 px-[14px]'>
+              <div className='flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)] px-[14px] py-[12px]'>
                 <div className='flex items-center justify-between gap-[8px]'>
                   <div className='flex-1 min-w-0'>
                     <WorkspaceHeader
@@ -502,28 +519,32 @@ export function Sidebar() {
               </div>
 
               {/* Search */}
-              <div
-                className='mx-[8px] mt-[10px] flex flex-shrink-0 cursor-pointer items-center justify-between rounded-[8px] border border-[var(--border)] bg-transparent px-[8px] py-[6px] transition-colors duration-100 hover:border-[var(--border-1)] hover:bg-[var(--surface-6)] dark:bg-[var(--surface-4)] dark:hover:border-[var(--border-1)] dark:hover:bg-[var(--surface-5)]'
-                onClick={() => setIsSearchModalOpen(true)}
-              >
-                <div className='flex items-center gap-[6px]'>
-                  <Search className='h-[14px] w-[14px] text-[var(--text-subtle)]' />
-                  <p className='translate-y-[0.25px] font-medium text-[var(--text-tertiary)] text-small'>
-                    Search
-                  </p>
+              <div className='px-[14px] pt-[12px] pb-[8px]'>
+                <div
+                  className='flex cursor-pointer items-center justify-between rounded-[10px] border border-[var(--border)] bg-[var(--surface-2)] px-[12px] py-[8px] shadow-sm transition-all duration-200 hover:border-[var(--border-1)] hover:bg-[var(--surface-3)] hover:shadow-md dark:bg-[var(--surface-4)] dark:hover:border-[var(--border-1)] dark:hover:bg-[var(--surface-5)]'
+                  onClick={() => setIsSearchModalOpen(true)}
+                >
+                  <div className='flex items-center gap-[8px]'>
+                    <Search className='h-[16px] w-[16px] text-[var(--text-secondary)]' />
+                    <p className='font-medium text-[var(--text-secondary)] text-[14px]'>
+                      Search workflows...
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-[1px] rounded-[4px] bg-[var(--surface-4)] px-[6px] py-[2px] dark:bg-[var(--surface-6)]'>
+                    <p className='font-semibold text-[var(--text-tertiary)] text-[11px]'>⌘K</p>
+                  </div>
                 </div>
-                <p className='font-medium text-[var(--text-subtle)] text-small'>⌘K</p>
               </div>
 
               {/* Workflows */}
-              <div className='workflows-section relative mt-[14px] flex flex-1 flex-col overflow-hidden'>
+              <div className='workflows-section relative mt-[6px] flex flex-1 flex-col overflow-hidden'>
                 {/* Header - Always visible */}
-                <div className='flex flex-shrink-0 flex-col space-y-[4px] px-[14px]'>
-                  <div className='flex items-center justify-between'>
-                    <div className='font-medium text-[var(--text-tertiary)] text-small'>
+                <div className='flex flex-shrink-0 flex-col space-y-[6px] px-[14px] pb-[8px]'>
+                  <div className='flex items-center justify-between rounded-[6px] bg-[var(--surface-2)] px-[8px] py-[6px] dark:bg-[var(--surface-3)]'>
+                    <div className='font-semibold uppercase tracking-wider text-[var(--text-tertiary)] text-[11px] opacity-80'>
                       Workflows
                     </div>
-                    <div className='flex items-center justify-center gap-[10px]'>
+                    <div className='flex items-center justify-center gap-[8px]'>
                       <Tooltip.Root>
                         <Tooltip.Trigger asChild>
                           <Button
@@ -593,17 +614,17 @@ export function Sidebar() {
               {isBillingEnabled && <UsageIndicator />}
 
               {/* Footer Navigation */}
-              <div className='flex flex-shrink-0 flex-col gap-[2px] border-[var(--border)] border-t px-[7.75px] pt-[8px] pb-[8px]'>
+              <div className='flex flex-shrink-0 flex-col gap-[6px] border-[var(--border)] border-t bg-gradient-to-t from-[var(--surface-2)] to-[var(--surface-1)] px-[10px] pt-[12px] pb-[12px]'>
                 {footerNavigationItems.map((item) => {
                   const Icon = item.icon
                   const active = item.href ? pathname?.startsWith(item.href) : false
                   const baseClasses =
-                    'group flex h-[26px] items-center gap-[8px] rounded-[8px] px-[6px] text-[14px] hover:bg-[var(--surface-6)] dark:hover:bg-[var(--surface-5)]'
+                    'group flex h-[32px] items-center gap-[10px] rounded-[10px] px-[10px] text-[14px] transition-all duration-200 hover:bg-[var(--surface-4)] hover:shadow-sm dark:hover:bg-[var(--surface-5)]'
                   const activeClasses = active
-                    ? 'bg-[var(--surface-6)] dark:bg-[var(--surface-5)]'
-                    : ''
+                    ? 'bg-gradient-to-r from-[#701ffc]/10 to-[#9d54ff]/10 border border-[#701ffc]/20 dark:from-[#701ffc]/20 dark:to-[#9d54ff]/20 shadow-sm'
+                    : 'border border-transparent'
                   const textClasses = active
-                    ? 'text-[var(--text-primary)]'
+                    ? 'text-[var(--text-primary)] font-semibold'
                     : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'
 
                   const content = (

@@ -290,20 +290,20 @@ export function WorkspaceHeader({
               <button
                 type='button'
                 aria-label='Switch workspace'
-                className={`flex cursor-pointer items-center gap-[8px] rounded-[6px] bg-transparent px-[6px] py-[4px] transition-colors hover:bg-[var(--surface-6)] dark:hover:bg-[var(--surface-5)] ${
+                className={`flex cursor-pointer items-center gap-[8px] rounded-[8px] bg-transparent px-[8px] py-[6px] transition-all duration-200 hover:bg-gradient-to-r hover:from-[var(--surface-4)] hover:to-[var(--surface-5)] hover:shadow-sm dark:hover:from-[var(--surface-5)] dark:hover:to-[var(--surface-6)] ${
                   isCollapsed ? '' : '-mx-[6px] min-w-0 max-w-full'
                 }`}
                 title={activeWorkspace?.name || 'Loading...'}
               >
                 <span
-                  className={`font-base text-[14px] text-[var(--text-primary)] ${
+                  className={`font-semibold text-[15px] text-[var(--text-primary)] ${
                     isCollapsed ? 'max-w-[120px] truncate' : 'truncate'
                   }`}
                 >
                   {activeWorkspace?.name || 'Loading...'}
                 </span>
                 <ChevronDown
-                  className={`h-[8px] w-[12px] flex-shrink-0 text-[var(--text-muted)] transition-transform duration-100 ${
+                  className={`h-[10px] w-[14px] flex-shrink-0 text-[var(--text-secondary)] transition-transform duration-200 ${
                     isWorkspaceMenuOpen ? 'rotate-180' : ''
                   }`}
                 />
@@ -460,7 +460,10 @@ export function WorkspaceHeader({
       <div className='flex flex-shrink-0 items-center gap-[10px]'>
         {/* Invite - hidden in collapsed mode */}
         {!isCollapsed && (
-          <Badge className='cursor-pointer' onClick={() => setIsInviteModalOpen(true)}>
+          <Badge 
+            className='cursor-pointer rounded-[8px] bg-gradient-to-r from-[#701ffc] to-[#9d54ff] px-[10px] py-[4px] font-semibold text-[12px] text-white shadow-sm transition-all duration-200 hover:shadow-md hover:scale-105' 
+            onClick={() => setIsInviteModalOpen(true)}
+          >
             Invite
           </Badge>
         )}
