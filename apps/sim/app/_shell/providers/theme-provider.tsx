@@ -27,10 +27,10 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider
       attribute='class'
-      defaultTheme='system'
+      defaultTheme='dark'
       enableSystem
       disableTransitionOnChange
-      storageKey='sim-theme'
+      storageKey='omniagentify-theme'
       forcedTheme={isLightModePage ? 'light' : undefined}
       {...props}
     >

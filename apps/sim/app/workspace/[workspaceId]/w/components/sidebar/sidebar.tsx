@@ -15,6 +15,7 @@ import {
   HelpModal,
   SearchModal,
   SettingsModal,
+  ThemeToggle,
   UsageIndicator,
   WorkflowList,
   WorkspaceHeader,
@@ -471,28 +472,33 @@ export function Sidebar() {
             onClick={handleSidebarClick}
           >
             <div className='flex h-full flex-col border-[var(--border)] border-r pt-[12px]'>
-              {/* Header */}
+              {/* Header with Theme Toggle */}
               <div className='flex-shrink-0 px-[14px]'>
-                <WorkspaceHeader
-                  activeWorkspace={activeWorkspace}
-                  workspaceId={workspaceId}
-                  workspaces={workspaces}
-                  isWorkspacesLoading={isWorkspacesLoading}
-                  isCreatingWorkspace={isCreatingWorkspace}
-                  isWorkspaceMenuOpen={isWorkspaceMenuOpen}
-                  setIsWorkspaceMenuOpen={setIsWorkspaceMenuOpen}
-                  onWorkspaceSwitch={handleWorkspaceSwitch}
-                  onCreateWorkspace={handleCreateWorkspace}
-                  onToggleCollapse={handleToggleCollapse}
-                  isCollapsed={isCollapsed}
-                  onRenameWorkspace={handleRenameWorkspace}
-                  onDeleteWorkspace={handleDeleteWorkspace}
-                  onDuplicateWorkspace={handleDuplicateWorkspace}
-                  onExportWorkspace={handleExportWorkspace}
-                  onImportWorkspace={handleImportWorkspace}
-                  isImportingWorkspace={isImportingWorkspace}
-                  showCollapseButton={isOnWorkflowPage}
-                />
+                <div className='flex items-center justify-between gap-[8px]'>
+                  <div className='flex-1 min-w-0'>
+                    <WorkspaceHeader
+                      activeWorkspace={activeWorkspace}
+                      workspaceId={workspaceId}
+                      workspaces={workspaces}
+                      isWorkspacesLoading={isWorkspacesLoading}
+                      isCreatingWorkspace={isCreatingWorkspace}
+                      isWorkspaceMenuOpen={isWorkspaceMenuOpen}
+                      setIsWorkspaceMenuOpen={setIsWorkspaceMenuOpen}
+                      onWorkspaceSwitch={handleWorkspaceSwitch}
+                      onCreateWorkspace={handleCreateWorkspace}
+                      onToggleCollapse={handleToggleCollapse}
+                      isCollapsed={isCollapsed}
+                      onRenameWorkspace={handleRenameWorkspace}
+                      onDeleteWorkspace={handleDeleteWorkspace}
+                      onDuplicateWorkspace={handleDuplicateWorkspace}
+                      onExportWorkspace={handleExportWorkspace}
+                      onImportWorkspace={handleImportWorkspace}
+                      isImportingWorkspace={isImportingWorkspace}
+                      showCollapseButton={isOnWorkflowPage}
+                    />
+                  </div>
+                  <ThemeToggle />
+                </div>
               </div>
 
               {/* Search */}

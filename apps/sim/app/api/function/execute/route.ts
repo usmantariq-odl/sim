@@ -13,7 +13,7 @@ import {
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-export const MAX_DURATION = 210
+export const maxDuration = 210
 
 const logger = createLogger('FunctionExecuteAPI')
 

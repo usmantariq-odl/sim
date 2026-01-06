@@ -24,11 +24,11 @@ export interface BrandConfig {
  * Default brand configuration values
  */
 const defaultConfig: BrandConfig = {
-  name: 'Sim',
+  name: 'OmniAgentify',
   logoUrl: undefined,
   faviconUrl: '/favicon/favicon.ico',
   customCssUrl: undefined,
-  supportEmail: 'help@sim.ai',
+  supportEmail: 'help@omniagentify.com',
   documentationUrl: undefined,
   termsUrl: undefined,
   privacyUrl: undefined,
@@ -37,7 +37,7 @@ const defaultConfig: BrandConfig = {
     primaryHoverColor: '#802fff',
     accentColor: '#9d54ff',
     accentHoverColor: '#a66fff',
-    backgroundColor: '#0c0c0c',
+    backgroundColor: '#ffffff',
   },
 }
 

@@ -7,15 +7,15 @@
  * This works by updating localStorage and notifying next-themes of the change.
  * @param theme - The desired theme ('system', 'light', or 'dark')
  */
-export function syncThemeToNextThemes(theme: 'system' | 'light' | 'dark') {
+export function syncThemeToNextThemes(theme: 'light' | 'system' | 'dark') {
   if (typeof window === 'undefined') return
 
-  const oldValue = localStorage.getItem('sim-theme')
-  localStorage.setItem('sim-theme', theme)
+  const oldValue = localStorage.getItem('omniagentify-theme')
+  localStorage.setItem('omniagentify-theme', theme)
 
   window.dispatchEvent(
     new StorageEvent('storage', {
-      key: 'sim-theme',
+      key: 'omniagentify-theme',
       newValue: theme,
       oldValue: oldValue,
       storageArea: localStorage,
@@ -38,6 +38,6 @@ export function syncThemeToNextThemes(theme: 'system' | 'light' | 'dark') {
  * Gets the current theme from next-themes localStorage
  */
 export function getThemeFromNextThemes(): 'system' | 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'system'
-  return (localStorage.getItem('sim-theme') as 'system' | 'light' | 'dark') || 'system'
+  if (typeof window === 'undefined') return 'light'
+  return (localStorage.getItem('omniagentify-theme') as 'system' | 'light' | 'dark') || 'light'
 }
