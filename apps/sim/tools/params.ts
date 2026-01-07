@@ -345,13 +345,17 @@ function buildParameterSchema(
     description: param.description || '',
   }
 
+  // Only add items property if this is an array type
   if (param.type === 'array' && param.items) {
-    propertySchema.items = {
-      ...param.items,
-      ...(param.items.properties && {
-        properties: { ...param.items.properties },
-      }),
+    // Ensure items has proper structure for JSON Schema 2020-12
+    const items = { ...param.items }
+    
+    // Clean up items to ensure valid schema
+    if (items.properties && typeof items.properties === 'object') {
+      items.properties = { ...items.properties }
     }
+    
+    propertySchema.items = items
   } else if (param.items) {
     logger.warn(`items property ignored for non-array param "${paramId}" in tool "${toolId}"`)
   }

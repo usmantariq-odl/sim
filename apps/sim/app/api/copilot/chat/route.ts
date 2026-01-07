@@ -361,6 +361,137 @@ export async function POST(req: NextRequest) {
           executeLocally: true,
         },
       ]
+      
+      // Add workflow management tools for LocalAgent mode
+      if (env.USE_LOCAL_AGENT === 'true' || env.USE_LOCAL_AGENT === true) {
+        // Import workflow management tool schemas from server tools router
+        try {
+          const { editWorkflowServerTool } = await import('@/lib/copilot/tools/server/workflow/edit-workflow')
+          const { getWorkflowConsoleServerTool } = await import('@/lib/copilot/tools/server/workflow/get-workflow-console')
+          const { getBlocksMetadataServerTool } = await import('@/lib/copilot/tools/server/blocks/get-blocks-metadata-tool')
+          const { getBlocksAndToolsServerTool } = await import('@/lib/copilot/tools/server/blocks/get-blocks-and-tools')
+          
+          // Add blocks discovery tool - lists all available blocks
+          baseTools.push(
+            {
+              name: 'get_blocks_and_tools',
+              description: 'Get a list of ALL available workflow blocks with their names and descriptions. Use this first to discover what blocks exist, then call get_blocks_metadata for detailed schemas of specific blocks.',
+              input_schema: {
+                type: 'object',
+                properties: {},
+              },
+              executeLocally: true,
+            }
+          )
+          
+          // Add blocks metadata tool - gets detailed schemas for specific blocks
+          baseTools.push(
+            {
+              name: 'get_blocks_metadata',
+              description: 'Get detailed metadata (input schemas, outputs, operations) for specific blocks. Call get_blocks_and_tools first to see available blocks, then use this to get schemas for the blocks you need.',
+              input_schema: {
+                type: 'object',
+                properties: {
+                  blockIds: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Array of block IDs to get metadata for (e.g., ["pinecone", "agent", "slack"])',
+                  },
+                },
+                required: ['blockIds'],
+              },
+              executeLocally: true,
+            }
+          )
+          
+          // Add workflow reading tool - essential for understanding current state
+          baseTools.push(
+            {
+              name: 'get_workflow_console',
+              description: 'Get the current workflow structure including all blocks, edges, and configuration. Use this BEFORE editing a workflow to understand its current state.',
+              input_schema: {
+                type: 'object',
+                properties: {
+                  workflowId: {
+                    type: 'string',
+                    description: 'ID of the workflow to retrieve. If not provided, uses the current workflow.',
+                  },
+                  include: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      enum: ['blocks', 'edges', 'metadata', 'executions'],
+                    },
+                    description: 'What to include in the response. Defaults to ["blocks", "edges", "metadata"]',
+                  },
+                },
+              },
+              executeLocally: true,
+            }
+          )
+          
+          // Add essential workflow editing tool
+          baseTools.push(
+            {
+              name: 'edit_workflow',
+              description: 'Modify workflows by adding, updating, or deleting blocks and edges. CRITICAL FORMAT: operation_type must be "add", "edit", or "delete" (NOT "add_block"). Each operation needs block_id and params object with { type, name, position, inputs }.',
+              input_schema: {
+                type: 'object',
+                properties: {
+                  operations: {
+                    type: 'array',
+                    description: 'Array of operations. Each must have operation_type ("add"/"edit"/"delete"), block_id (string), and params object',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        operation_type: {
+                          type: 'string',
+                          enum: ['add', 'edit', 'delete'],
+                          description: 'Type of operation: "add" to create block, "edit" to modify, "delete" to remove'
+                        },
+                        block_id: { 
+                          type: 'string',
+                          description: 'Unique identifier for the block (generate UUID for new blocks)'
+                        },
+                        params: { 
+                          type: 'object',
+                          description: 'Block configuration: { type (block type ID), name (display name), position: {x, y}, inputs: {...}, connections: {...} }',
+                          properties: {
+                            type: { type: 'string', description: 'Block type ID (e.g., "pinecone", "agent", "response")' },
+                            name: { type: 'string', description: 'Display name for the block' },
+                            position: { 
+                              type: 'object',
+                              properties: {
+                                x: { type: 'number' },
+                                y: { type: 'number' },
+                              },
+                            },
+                            inputs: { type: 'object', description: 'Block-specific configuration inputs' },
+                            connections: { 
+                              type: 'object',
+                              description: 'Connections from this block: { success: "target_block_id" } or { success: ["block1", "block2"] }'
+                            },
+                          }
+                        },
+                      },
+                      required: ['operation_type', 'block_id', 'params']
+                    },
+                  },
+                },
+                required: ['operations'],
+              },
+              executeLocally: true,
+            }
+          )
+          
+          logger.info(`[${tracker.requestId}] Added workflow management tools for LocalAgent`)
+        } catch (error) {
+          logger.warn(`[${tracker.requestId}] Failed to load workflow management tools`, {
+            error: error instanceof Error ? error.message : String(error),
+          })
+        }
+      }
+      
       // Fetch user credentials (OAuth + API keys) - pass workflowId to get workspace env vars
       try {
         const rawCredentials = await getCredentialsServerTool.execute(
@@ -476,31 +607,92 @@ export async function POST(req: NextRequest) {
       })
     } catch {}
 
-    const simAgentResponse = await fetch(`${SIM_AGENT_API_URL}/api/chat-completion-streaming`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(env.COPILOT_API_KEY ? { 'x-api-key': env.COPILOT_API_KEY } : {}),
-      },
-      body: JSON.stringify(requestPayload),
-    })
+    // Check if we should use local agent instead of external Sim Agent
+    const useLocalAgent = env.USE_LOCAL_AGENT === 'true' || env.USE_LOCAL_AGENT === true
+    let simAgentResponse: Response
 
-    if (!simAgentResponse.ok) {
-      if (simAgentResponse.status === 401 || simAgentResponse.status === 402) {
-        // Rethrow status only; client will render appropriate assistant message
-        return new NextResponse(null, { status: simAgentResponse.status })
+    if (useLocalAgent) {
+      logger.info(`[${tracker.requestId}] Using local AI agent (bypassing external service)`)
+      
+      try {
+        const { handleLocalAgentRequest } = await import('@/lib/copilot/local-agent')
+        
+        // Build conversation history from messages
+        const conversationHistory = messages.slice(0, -1) // All except current message
+        
+        // Extract cached system prompt from first assistant message (if exists)
+        // This saves ~4000 tokens per message after the first one
+        let systemPromptCache: string | undefined
+        if (messages.length > 1) {
+          const firstAssistantMsg = messages.find((m: any) => m.role === 'assistant')
+          systemPromptCache = firstAssistantMsg?.systemPrompt
+          if (systemPromptCache) {
+            logger.info(`[${tracker.requestId}] Using cached system prompt from previous message (saves ~4000 tokens)`)
+          }
+        }
+        
+        logger.info(`[${tracker.requestId}] Conversation context:`, {
+          totalMessages: messages.length,
+          historyMessages: conversationHistory.length,
+          hasCachedPrompt: !!systemPromptCache,
+          cachedPromptLength: systemPromptCache?.length,
+        })
+        
+        simAgentResponse = await handleLocalAgentRequest({
+          message: message,
+          workflowId,
+          userId: authenticatedUserId,
+          stream: true,
+          streamToolCalls: true,
+          model: model,
+          mode: mode,
+          messageId: userMessageIdToUse,
+          provider: providerConfig,
+          context: agentContexts,
+          tools: integrationTools,
+          baseTools: baseTools,
+          credentials: credentials || undefined,
+          conversationHistory,
+          userName: session?.user?.name,
+          systemPromptCache, // Pass cached prompt to avoid rebuilding
+        })
+      } catch (error) {
+        logger.error(`[${tracker.requestId}] Local agent error:`, error)
+        return NextResponse.json(
+          { error: `Local agent error: ${error instanceof Error ? error.message : 'Unknown error'}` },
+          { status: 500 }
+        )
       }
-
-      const errorText = await simAgentResponse.text().catch(() => '')
-      logger.error(`[${tracker.requestId}] Sim agent API error:`, {
-        status: simAgentResponse.status,
-        error: errorText,
+    } else {
+      // Use external Sim Agent service
+      logger.info(`[${tracker.requestId}] Using external Sim Agent service`)
+      
+      simAgentResponse = await fetch(`${SIM_AGENT_API_URL}/api/chat-completion-streaming`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(env.COPILOT_API_KEY ? { 'x-api-key': env.COPILOT_API_KEY } : {}),
+        },
+        body: JSON.stringify(requestPayload),
       })
 
-      return NextResponse.json(
-        { error: `Sim agent API error: ${simAgentResponse.statusText}` },
-        { status: simAgentResponse.status }
-      )
+      if (!simAgentResponse.ok) {
+        if (simAgentResponse.status === 401 || simAgentResponse.status === 402) {
+          // Rethrow status only; client will render appropriate assistant message
+          return new NextResponse(null, { status: simAgentResponse.status })
+        }
+
+        const errorText = await simAgentResponse.text().catch(() => '')
+        logger.error(`[${tracker.requestId}] Sim agent API error:`, {
+          status: simAgentResponse.status,
+          error: errorText,
+        })
+
+        return NextResponse.json(
+          { error: `Sim agent API error: ${simAgentResponse.statusText}` },
+          { status: simAgentResponse.status }
+        )
+      }
     }
 
     // If streaming is requested, forward the stream and update chat later
@@ -529,6 +721,7 @@ export async function POST(req: NextRequest) {
           const isFirstDone = true
           let responseIdFromStart: string | undefined
           let responseIdFromDone: string | undefined
+          let systemPromptFromStart: string | undefined // Capture system prompt for caching
           // Track tool call progress to identify a safe done event
           const announcedToolCallIds = new Set<string>()
           const startedToolExecutionIds = new Set<string>()
@@ -660,6 +853,11 @@ export async function POST(req: NextRequest) {
                       case 'start':
                         if (event.data?.responseId) {
                           responseIdFromStart = event.data.responseId
+                        }
+                        // Capture system prompt from start event for future caching
+                        if (event.data?.systemPrompt) {
+                          systemPromptFromStart = event.data.systemPrompt
+                          logger.debug(`[${tracker.requestId}] Captured system prompt for caching (${event.data.systemPrompt.length} chars)`)
                         }
                         break
 
@@ -814,10 +1012,11 @@ export async function POST(req: NextRequest) {
                   content: assistantContent,
                   timestamp: new Date().toISOString(),
                   ...(toolCalls.length > 0 && { toolCalls }),
+                  ...(systemPromptFromStart && { systemPrompt: systemPromptFromStart }), // Cache system prompt
                 }
                 updatedMessages.push(assistantMessage)
                 logger.info(
-                  `[${tracker.requestId}] Saving assistant message with content (${assistantContent.length} chars) and ${toolCalls.length} tool calls`
+                  `[${tracker.requestId}] Saving assistant message with content (${assistantContent.length} chars) and ${toolCalls.length} tool calls${systemPromptFromStart ? ' + cached system prompt' : ''}`
                 )
               } else {
                 logger.info(

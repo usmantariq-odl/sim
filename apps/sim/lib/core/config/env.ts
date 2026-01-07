@@ -32,6 +32,8 @@ export const env = createEnv({
     COPILOT_MODEL:                         z.string().optional(),                  // Model for copilot API calls
     COPILOT_API_KEY:                       z.string().min(1).optional(),           // Secret for internal sim agent API authentication
     SIM_AGENT_API_URL:                     z.string().url().optional(),            // URL for internal sim agent API
+    USE_LOCAL_AGENT:                       z.union([z.string(), z.boolean()]).optional(), // Use local AI agent instead of external service
+    ANTHROPIC_API_KEY:                     z.string().min(1).optional(),           // Anthropic API key for local agent
     AGENT_INDEXER_URL:                     z.string().url().optional(),            // URL for agent training data indexer
     AGENT_INDEXER_API_KEY:                 z.string().min(1).optional(),           // API key for agent indexer authentication
 
@@ -70,12 +72,12 @@ export const env = createEnv({
     TWILIO_PHONE_NUMBER:                   z.string().min(1).optional(),           // Twilio phone number for sending SMS
 
     // AI/LLM Provider API Keys
-    OPENAI_API_KEY:                        z.string().min(1).optional(),           // Primary OpenAI API key
+    OPENAI_API_KEY:                        z.string().min(1).optional(),           // Primary OpenAI API key (also used for local agent)
     OPENAI_API_KEY_1:                      z.string().min(1).optional(),           // Additional OpenAI API key for load balancing
     OPENAI_API_KEY_2:                      z.string().min(1).optional(),           // Additional OpenAI API key for load balancing
     OPENAI_API_KEY_3:                      z.string().min(1).optional(),           // Additional OpenAI API key for load balancing
     MISTRAL_API_KEY:                       z.string().min(1).optional(),           // Mistral AI API key
-    ANTHROPIC_API_KEY_1:                   z.string().min(1).optional(),           // Primary Anthropic Claude API key
+    ANTHROPIC_API_KEY_1:                   z.string().min(1).optional(),           // Primary Anthropic Claude API key (also used for local agent)
     ANTHROPIC_API_KEY_2:                   z.string().min(1).optional(),           // Additional Anthropic API key for load balancing
     ANTHROPIC_API_KEY_3:                   z.string().min(1).optional(),           // Additional Anthropic API key for load balancing
     GEMINI_API_KEY_1:                      z.string().min(1).optional(),           // Primary Gemini API key
